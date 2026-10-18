@@ -104,6 +104,43 @@ textarea{resize:vertical;min-height:84px}
 .notice div:last-child{font-size:13px;color:var(--mute);line-height:1.75;word-break:keep-all}
 .notice b{color:var(--gold2);font-weight:700}
 .notice div:last-child>b:first-child{display:block;color:var(--ink);font-size:14.5px;margin-bottom:5px}
+
+/* ── v2 · 300MB upload console ── */
+.f{position:relative;overflow:hidden}
+.f::before{content:'';position:absolute;inset:0;width:var(--p,0%);background:linear-gradient(90deg,rgba(201,162,78,.08),rgba(226,192,120,.24));transition:width .3s linear;pointer-events:none}
+.f>*{position:relative}
+.f .st{flex:none;font-size:11.5px;color:var(--mute);font-variant-numeric:tabular-nums}
+.f .st:empty{display:none}
+.f.up .st{color:var(--gold2)}
+.f.retry .st{color:#ffc46b}
+.f.done{border-color:rgba(95,211,160,.38)}.f.done .st{color:var(--ok)}
+.f.fail{border-color:rgba(255,143,122,.5)}.f.fail .st{color:var(--err)}
+.f.rej{border-color:rgba(255,143,122,.4);animation:rejfade 5s forwards}.f.rej .st{color:var(--err)}
+@keyframes rejfade{0%,82%{opacity:1}100%{opacity:0}}
+.busy .f .x{visibility:hidden}
+.busy .drop{pointer-events:none;opacity:.55}
+
+.console{display:none;margin-top:18px;padding:22px 24px;border:1px solid rgba(201,162,78,.3);border-radius:16px;
+  background:linear-gradient(160deg,rgba(201,162,78,.09),rgba(8,14,26,.65))}
+.console.on{display:block}
+.c-top{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.pct{font-size:clamp(44px,9vw,66px);font-weight:800;line-height:1;letter-spacing:-.045em;font-variant-numeric:tabular-nums;
+  background:linear-gradient(100deg,var(--gold2),var(--gold),#fff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.pct small{font-size:.4em;margin-left:3px;letter-spacing:0}
+.c-meta{text-align:right;font-size:13px;color:var(--mute);line-height:1.75;font-variant-numeric:tabular-nums}
+.c-meta b{color:var(--ink);font-weight:700}
+@media(max-width:560px){.c-meta{text-align:left}}
+.track{height:8px;border-radius:100px;background:rgba(29,46,68,.95);overflow:hidden;margin:16px 0 12px}
+.track i{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,var(--gold),var(--gold2));
+  transition:width .3s linear;position:relative;overflow:hidden;box-shadow:0 0 16px rgba(226,192,120,.45)}
+.track i::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent);
+  transform:translateX(-100%);animation:shine 1.5s infinite}
+@keyframes shine{to{transform:translateX(100%)}}
+.console.done .track i::after{display:none}
+.c-file{font-size:12.5px;color:var(--ink);opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c-tip{font-size:12px;color:var(--mute);margin-top:6px;word-break:keep-all}
+.console.done .c-tip{display:none}
+@media(prefers-reduced-motion:reduce){.track i::after{display:none}}
 </style>
 </head>
 <body>
@@ -123,6 +160,7 @@ textarea{resize:vertical;min-height:84px}
       <div><b>14년</b>글로벌 F&amp;B 현장</div>
       <div><b>K-Food</b>수출 전문</div>
       <div><b>3분</b>평균 업로드 시간</div>
+      <div><b>300MB</b>파일당 업로드 한도</div>
     </div>
   </div>
 </section>
@@ -132,10 +170,10 @@ textarea{resize:vertical;min-height:84px}
   <div class="notice">
     <div class="ic">🪶</div>
     <div>
-      <b>가벼운 재료만 올려주세요</b>
-      로고는 <b>PNG · SVG</b>, 사진은 <b>JPG · PNG</b>, 문서는 <b>PDF</b>면 충분합니다.
-      일러스트(.ai) · 포토샵(.psd) 원본이나 대용량 압축파일은 업로드가 오래 걸리고 실패할 수 있어 받지 않습니다.
-      원본만 있으시면 <b>PNG로 내보내서</b> 올려주시거나, 비고란에 남겨주시면 따로 안내드리겠습니다.
+      <b>원본 그대로 올려주세요 — 파일당 최대 300MB</b>
+      회사소개서 · IR · 카탈로그 PDF, 제품 사진 원본, 홍보 영상(MP4)까지 <b>압축하지 않고</b> 올리셔도 됩니다.
+      업로드 중 인터넷이 끊겨도 <b>끊긴 지점부터 이어서</b> 올라갑니다.
+      로고는 <b>PNG · SVG</b>가 가장 좋고, 일러스트(.ai) · 포토샵(.psd) 원본은 받지 않습니다.
     </div>
   </div>
 
@@ -184,21 +222,29 @@ textarea{resize:vertical;min-height:84px}
   <div class="step">
     <div class="stepnum"><span>5</span><h2>제품 사진</h2></div>
     <p class="hint">누끼(배경 제거) 사진, 패키지 컷, 연출컷 모두 환영합니다. 웹용이라 <b>가로 2000px 내외면 충분</b>합니다.</p>
-    <div class="drop" data-cat="product"><div class="ic">📸</div><div class="t">제품 이미지 업로드</div><div class="s">JPG · PNG · WEBP · 다중 선택 가능</div></div>
+    <div class="drop" data-cat="product"><div class="ic">📸</div><div class="t">제품 이미지 업로드</div><div class="s">JPG · PNG · WEBP · MP4 · 다중 선택 가능</div></div>
     <div class="files" data-list="product"></div>
   </div>
 
   <!-- STEP 6 -->
   <div class="step">
     <div class="stepnum"><span>6</span><h2>회사소개서 · 카탈로그 · 인증서</h2></div>
-    <p class="hint">회사소개서, 제품 카탈로그, HACCP/할랄 등 인증서, 단가표 등.</p>
+    <p class="hint">회사소개서, IR 자료, 제품 카탈로그, HACCP/할랄 등 인증서, 단가표 등. 용량이 커도 원본 그대로 괜찮습니다.</p>
     <div class="drop" data-cat="doc"><div class="ic">📄</div><div class="t">문서 파일 업로드</div><div class="s">PDF · PPT · DOCX · XLSX</div></div>
     <div class="files" data-list="doc"></div>
   </div>
 
   <div class="step">
     <button class="submit" id="go">자료 제출하기</button>
-    <div class="bar" id="bar"><i></i></div>
+    <div class="console" id="console" aria-live="polite">
+      <div class="c-top">
+        <div class="pct" id="cPct">0<small>%</small></div>
+        <div class="c-meta"><div id="cBytes">—</div><div id="cSpeed">속도 측정 중…</div></div>
+      </div>
+      <div class="track"><i id="cFill"></i></div>
+      <div class="c-file" id="cFile">접수 폴더 생성 중…</div>
+      <div class="c-tip">업로드가 끝날 때까지 이 화면을 켜 두세요 · 인터넷이 끊겨도 이어서 올라갑니다</div>
+    </div>
     <div class="msg" id="msg"></div>
   </div>
 </div>
@@ -206,8 +252,9 @@ textarea{resize:vertical;min-height:84px}
 <div class="foot">Belle Issa<b style="color:var(--gold);font-weight:700">C</b> · Global Export Division &nbsp;|&nbsp; upload.belleissac.cloud<br>업로드하신 자료는 홈페이지 제작 목적으로만 사용되며 제3자에게 제공되지 않습니다.<div class="legal"><a href="https://privacy.belleissac.cloud/#ko" target="_blank" rel="noopener">개인정보처리방침 | Privacy Policy</a></div></div>
 
 <script>
-/* ⬇⬇ 여기에 Apps Script 배포 URL을 넣으세요 ⬇⬇ */
+/* ⬇⬇ Apps Script 배포 URL — 기존과 동일 (v2는 같은 배포에 "새 버전"으로 올림) ⬇⬇ */
 const ENDPOINT = 'https://script.google.com/macros/s/AKfycbynMUPDHKwKhj-Zg0rS_HukDHoWvVo2z5kFQI_JoRqNo1nkXLwUr6zMxLjDll1i90lP9w/exec';
+let WARP=1, WT=1, FLASH=0;   // 업로드 중 별이 빨라지는 워프 효과
 
 /* ── constellation starfield ── */
 (function(){
@@ -229,9 +276,16 @@ const ENDPOINT = 'https://script.google.com/macros/s/AKfycbynMUPDHKwKhj-Zg0rS_Hu
   }
   function draw(){
     x.clearRect(0,0,w,h);
+    WARP+=(WT-WARP)*.03; FLASH*=.975;
+    const k=(WARP-1)*.0045;
     for(const p of P){
-      if(!still){ p.x+=p.vx; p.y+=p.vy; p.ph+=p.sp; }
-      if(p.x<-2)p.x=w+2; if(p.x>w+2)p.x=-2; if(p.y<-2)p.y=h+2; if(p.y>h+2)p.y=-2;
+      if(!still){ const dx=p.x-w/2, dy=p.y-h/2;
+        p.x+=p.vx*WARP+dx*k; p.y+=p.vy*WARP+dy*k; p.ph+=p.sp;
+        if(k>.0008){ x.strokeStyle='rgba('+p.c[0]+','+p.c[1]+','+p.c[2]+','+Math.min(.5,k*90)+')'; x.lineWidth=p.r*.9;
+          x.beginPath(); x.moveTo(p.x,p.y); x.lineTo(p.x-dx*k*14,p.y-dy*k*14); x.stroke(); } }
+      if(p.x<-2||p.x>w+2||p.y<-2||p.y>h+2){
+        if(WARP>1.3){ p.x=w/2+(Math.random()-.5)*w*.35; p.y=h/2+(Math.random()-.5)*h*.35; }
+        else{ if(p.x<-2)p.x=w+2; if(p.x>w+2)p.x=-2; if(p.y<-2)p.y=h+2; if(p.y>h+2)p.y=-2; } }
       const tw=.30+.50*(Math.sin(p.ph)*.5+.5);
       x.fillStyle='rgba('+p.c[0]+','+p.c[1]+','+p.c[2]+','+tw+')';
       x.beginPath(); x.arc(p.x,p.y,p.r,0,7); x.fill();
@@ -240,7 +294,7 @@ const ENDPOINT = 'https://script.google.com/macros/s/AKfycbynMUPDHKwKhj-Zg0rS_Hu
     }
     for(let i=0;i<P.length;i++)for(let j=i+1;j<P.length;j++){
       const dx=P[i].x-P[j].x, dy=P[i].y-P[j].y, dd=Math.hypot(dx,dy);
-      if(dd<L){ x.strokeStyle='rgba(196,194,226,'+(1-dd/L)*.13+')'; x.lineWidth=.6*dpr;
+      if(dd<L){ x.strokeStyle=FLASH>.02?'rgba(226,192,120,'+(1-dd/L)*(.13+FLASH*.5)+')':'rgba(196,194,226,'+(1-dd/L)*.13+')'; x.lineWidth=.6*dpr;
         x.beginPath(); x.moveTo(P[i].x,P[i].y); x.lineTo(P[j].x,P[j].y); x.stroke(); }
     }
     requestAnimationFrame(draw);
@@ -253,20 +307,29 @@ const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.targe
 document.querySelectorAll('.step').forEach(s=>io.observe(s));
 
 /* ── file pickers ── */
+const MAX_MB=300, MAX=MAX_MB*1048576, CHUNK=8*1048576;
+const BLOCK=/\.(ai|psd|exe|bat|cmd|sh|msi|apk|dmg)$/i;
 const store={card:[],logo:[],product:[],doc:[]};
-const fmt=b=>b<1048576?(b/1024).toFixed(0)+' KB':(b/1048576).toFixed(1)+' MB';
+let seq=0, busy=false;
+const fmt=b=>b<1048576?(b/1024).toFixed(0)+' KB':b<1073741824?(b/1048576).toFixed(1)+' MB':(b/1073741824).toFixed(2)+' GB';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 function render(cat){
   const box=document.querySelector('[data-list="'+cat+'"]');
-  box.innerHTML=store[cat].map((f,i)=>
-    '<div class="f"><span>📎</span><span class="nm">'+f.name.replace(/</g,'&lt;')+'</span><span class="sz">'+fmt(f.size)+'</span><span class="x" data-c="'+cat+'" data-i="'+i+'">✕</span></div>').join('');
+  box.innerHTML=store[cat].map((it,i)=>
+    '<div class="f" id="'+it.id+'"><span>📎</span><span class="nm">'+esc(it.file.name)+'</span><span class="sz">'+fmt(it.file.size)+'</span><span class="st"></span><span class="x" data-c="'+cat+'" data-i="'+i+'">✕</span></div>').join('');
+}
+function reject(cat,name,why){
+  const d=document.createElement('div');d.className='f rej';
+  d.innerHTML='<span>⛔</span><span class="nm">'+esc(name)+'</span><span class="st">'+why+'</span>';
+  document.querySelector('[data-list="'+cat+'"]').appendChild(d);setTimeout(()=>d.remove(),5200);
 }
 document.addEventListener('click',e=>{
-  if(e.target.classList.contains('x')){store[e.target.dataset.c].splice(+e.target.dataset.i,1);render(e.target.dataset.c);}
+  if(!busy&&e.target.classList.contains('x')){store[e.target.dataset.c].splice(+e.target.dataset.i,1);render(e.target.dataset.c);}
 });
 document.querySelectorAll('.drop').forEach(dz=>{
   const cat=dz.dataset.cat;
-  const inp=document.createElement('input');inp.type='file';inp.multiple=true;inp.style.display='none';
+  const inp=document.createElement('input');inp.type='file';inp.multiple=true;inp.style.display='none';inp.dataset.cat=cat;
   document.body.appendChild(inp);
   dz.onclick=()=>inp.click();
   inp.onchange=()=>{add(cat,inp.files);inp.value='';};
@@ -275,20 +338,118 @@ document.querySelectorAll('.drop').forEach(dz=>{
   dz.ondrop=e=>{e.preventDefault();dz.classList.remove('over');add(cat,e.dataTransfer.files)};
 });
 function add(cat,list){
+  if(busy)return;
+  const rej=[];
   for(const f of list){
-    if(f.size>15*1024*1024){alert(f.name+' : 15MB를 초과하여 제외되었습니다. 가벼운 파일로 다시 올려주세요.');continue;}
-    store[cat].push(f);
+    if(!f.size){rej.push([f.name,'빈 파일']);continue;}
+    if(f.size>MAX){rej.push([f.name,MAX_MB+'MB 초과']);continue;}
+    if(BLOCK.test(f.name)){rej.push([f.name,'받지 않는 형식']);continue;}
+    if(store[cat].some(x=>x.file.name===f.name&&x.file.size===f.size))continue;
+    store[cat].push({id:'f'+(++seq),cat,file:f,sent:0});
   }
-  render(cat);
+  render(cat);rej.forEach(r=>reject(cat,r[0],r[1]));
+}
+
+/* ── network ── */
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const online=()=>navigator.onLine?Promise.resolve():new Promise(r=>addEventListener('online',r,{once:true}));
+async function post(body,tries=4){
+  for(let a=1;;a++){
+    try{
+      const r=await fetch(ENDPOINT,{method:'POST',body:JSON.stringify(body)});
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      return await r.json();
+    }catch(e){if(a>=tries)throw e;await online();await sleep(700*2**a);}
+  }
+}
+const b64=blob=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.slice(r.result.indexOf(',')+1));r.onerror=()=>rej(r.error);r.readAsDataURL(blob)});
+
+/* 브라우저 → 구글 드라이브 직접 PUT (조각 단위, 진행률 실시간) */
+function putDirect(url,blob,start,total,onp){
+  return new Promise((res,rej)=>{
+    const x=new XMLHttpRequest();
+    x.open('PUT',url);
+    x.setRequestHeader('Content-Range','bytes '+start+'-'+(start+blob.size-1)+'/'+total);
+    x.upload.onprogress=e=>onp(e.loaded);
+    x.onload=()=>{
+      if(x.status===308){let r=null;try{r=x.getResponseHeader('Range')}catch(_){}
+        res({done:false,next:r?+r.split('-')[1]+1:start+blob.size});}
+      else if(x.status>=200&&x.status<300)res({done:true});
+      else rej(Object.assign(new Error('HTTP '+x.status),{status:x.status,expired:x.status===404||x.status===410}));
+    };
+    x.onerror=x.ontimeout=()=>rej(Object.assign(new Error('network'),{net:true}));
+    x.timeout=180000;
+    x.send(blob);
+  });
+}
+
+/* ── progress console ── */
+let MODE='direct', directProven=false, CUR=[], raf=0, wl=null;
+const S={total:0,t0:0,samples:[]};
+const $=id=>document.getElementById(id);
+const mmss=s=>{s=Math.max(0,Math.round(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+function tick(){if(!raf)raf=requestAnimationFrame(()=>{raf=0;paint()});}
+function paint(){
+  const sent=CUR.reduce((s,it)=>s+(it.sent||0),0), now=performance.now();
+  S.samples.push([now,sent]);while(S.samples.length>2&&now-S.samples[0][0]>6000)S.samples.shift();
+  const [t0,b0]=S.samples[0], sp=now-t0>800?(sent-b0)/((now-t0)/1000):0;
+  const r=S.total?sent/S.total:1;
+  $('cPct').innerHTML=Math.floor(r*100)+'<small>%</small>';
+  $('cFill').style.width=(r*100)+'%';
+  $('cBytes').innerHTML='<b>'+fmt(sent)+'</b> / '+fmt(S.total);
+  $('cSpeed').textContent=sp>1024?(sp/1048576).toFixed(1)+' MB/s · 남은 시간 '+mmss((S.total-sent)/sp):'속도 측정 중…';
+  CUR.forEach(it=>{const el=$(it.id);if(el)el.style.setProperty('--p',(it.sent/it.file.size*100)+'%')});
+}
+function setRow(it,cls,txt){const el=$(it.id);if(!el)return;el.classList.remove('up','retry','done','fail');el.classList.add(cls);el.querySelector('.st').textContent=txt;}
+async function lockWake(){try{if(navigator.wakeLock)wl=await navigator.wakeLock.request('screen')}catch(_){}}
+function releaseWake(){try{wl&&wl.release()}catch(_){}wl=null}
+document.addEventListener('visibilitychange',()=>{if(busy&&document.visibilityState==='visible')lockWake()});
+addEventListener('beforeunload',e=>{if(busy){e.preventDefault();e.returnValue='';}});
+
+/* 파일 1개: 조각 업로드 + 끊기면 이어올리기 + 직접 업로드 불가 시 중계로 자동 전환 */
+async function uploadItem(it,folderId){
+  const f=it.file,total=f.size;
+  const newSession=async()=>{
+    const s=await post({action:'session',folderId,category:it.cat,filename:f.name,
+      mimeType:f.type||'application/octet-stream',size:total,origin:location.origin});
+    if(!s.ok)throw new Error(s.error||'session');return s.uploadUrl;};
+  setRow(it,'up','0%');
+  let url=await newSession(),off=0,fails=0;
+  while(off<total){
+    const blob=f.slice(off,Math.min(off+CHUNK,total));
+    try{
+      let r;
+      if(MODE==='direct'){
+        r=await putDirect(url,blob,off,total,l=>{it.sent=off+l;tick();});
+        directProven=true;
+      }else{
+        r=await post({action:'chunk',uploadUrl:url,start:off,total,data:await b64(blob)},1);
+        if(!r.ok)throw Object.assign(new Error(r.error||'chunk'),{expired:r.expired});
+      }
+      off=r.done?total:r.next;fails=0;
+      it.sent=off;setRow(it,'up',Math.floor(off/total*100)+'%');tick();
+    }catch(err){
+      it.sent=off;tick();
+      if(MODE==='direct'&&!directProven&&err.net){MODE='relay';url=await newSession();off=0;it.sent=0;continue;}
+      if(++fails>6)throw err;
+      setRow(it,'retry','재연결 중…');
+      await online();await sleep(Math.min(1000*2**fails,15000));
+      if(err.expired){url=await newSession();off=0;}
+      else{
+        const st=await post({action:'status',uploadUrl:url,total}).catch(()=>null);
+        if(st&&st.ok)off=st.done?total:st.next;
+        else if(st&&st.expired){url=await newSession();off=0;}
+      }
+      it.sent=off;setRow(it,'up',Math.floor(off/total*100)+'%');tick();
+    }
+  }
+  it.sent=total;setRow(it,'done','✓ 완료');tick();
 }
 
 /* ── submit ── */
-const post=body=>fetch(ENDPOINT,{method:'POST',body:JSON.stringify(body)}).then(r=>r.json());
-const b64=f=>new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.readAsDataURL(f)});
-
 document.getElementById('go').onclick=async()=>{
   const g=id=>document.getElementById(id).value.trim();
-  const msg=document.getElementById('msg'),bar=document.getElementById('bar'),fill=bar.querySelector('i'),btn=document.getElementById('go');
+  const msg=$('msg'),btn=$('go'),con=$('console');
   msg.className='msg';msg.textContent='';
 
   if(!g('contactName')||!g('contactPhone')||!g('companyKr')){
@@ -296,31 +457,46 @@ document.getElementById('go').onclick=async()=>{
   if(ENDPOINT.indexOf('PASTE_')===0){
     msg.className='msg err';msg.textContent='관리자 설정 미완료: Apps Script URL이 입력되지 않았습니다.';return;}
 
-  const all=[];for(const c in store)store[c].forEach(f=>all.push({cat:c,file:f}));
-  btn.disabled=true;bar.classList.add('on');
+  CUR=[];for(const c in store)store[c].forEach(it=>{it.sent=0;CUR.push(it)});
+  S.total=CUR.reduce((s,it)=>s+it.file.size,0);S.t0=performance.now();S.samples=[];
+  busy=true;document.body.classList.add('busy');btn.disabled=true;
+  con.classList.remove('done');con.classList.add('on');paint();
+  WT=3.4;lockWake();
   try{
-    msg.textContent='접수 폴더 생성 중...';
+    $('cFile').textContent='접수 폴더 생성 중…';
     const init=await post({action:'init',companyKr:g('companyKr'),companyEn:g('companyEn'),
       contactName:g('contactName'),contactPhone:g('contactPhone'),email:g('email'),
-      website:g('website'),items:g('items'),memo:g('memo')});
+      website:g('website'),items:g('items'),memo:g('memo')},2);
     if(!init.ok)throw new Error(init.error||'init failed');
 
-    for(let i=0;i<all.length;i++){
-      msg.textContent='파일 업로드 중 ('+(i+1)+'/'+all.length+') · '+all[i].file.name;
-      await post({action:'upload',folderId:init.folderId,category:all[i].cat,
-        filename:all[i].file.name,mimeType:all[i].file.type,data:await b64(all[i].file)});
-      fill.style.width=((i+1)/Math.max(all.length,1)*100)+'%';
+    const done=[];let failed=0;
+    for(let i=0;i<CUR.length;i++){
+      const it=CUR[i];
+      $('cFile').textContent='('+(i+1)+'/'+CUR.length+') '+it.file.name;
+      try{await uploadItem(it,init.folderId);done.push({cat:it.cat,name:it.file.name,size:it.file.size});}
+      catch(e){failed++;setRow(it,'fail','실패');console.error(it.file.name,e);}
     }
-    fill.style.width='100%';
-    await post({action:'finish',recordId:init.recordId,fileCount:all.length,folderUrl:init.folderUrl});
+    $('cFile').textContent='접수 마무리 중…';
+    await post({action:'finish',recordId:init.recordId,fileCount:done.length,failed,files:done,folderUrl:init.folderUrl});
 
-    msg.className='msg ok';
-    msg.innerHTML='✅ 접수 완료되었습니다.<br>접수번호 <b>'+init.recordId+'</b><br>담당자가 확인 후 연락드리겠습니다. 감사합니다.';
-    document.querySelectorAll('input,textarea').forEach(el=>el.value='');
-    for(const c in store){store[c]=[];render(c);}
+    con.classList.add('done');paint();FLASH=1;
+    const secs=(performance.now()-S.t0)/1000, mb=done.reduce((s,f)=>s+f.size,0);
+    $('cFile').textContent='전송 완료 · '+fmt(mb)+' · '+mmss(secs);
+    $('cSpeed').textContent='평균 '+(mb/Math.max(secs,.1)/1048576).toFixed(1)+' MB/s';
+    if(failed){
+      msg.className='msg err';
+      msg.innerHTML='접수번호 <b>'+esc(init.recordId)+'</b> — 파일 '+done.length+'개는 저장됐지만 <b>'+failed+'개</b>가 올라가지 않았습니다.<br>빨간 표시된 파일만 다시 선택해서 한 번 더 제출해 주세요.';
+      for(const c in store){store[c]=store[c].filter(it=>!done.some(d=>d.name===it.file.name&&d.cat===c));render(c);}
+    }else{
+      msg.className='msg ok';
+      msg.innerHTML='✅ 접수 완료되었습니다.<br>접수번호 <b>'+esc(init.recordId)+'</b> · 파일 '+done.length+'개 · '+fmt(mb)+'<br>담당자가 확인 후 연락드리겠습니다. 감사합니다.';
+      document.querySelectorAll('input,textarea').forEach(el=>el.value='');
+      for(const c in store){store[c]=[];render(c);}
+    }
   }catch(err){
     msg.className='msg err';msg.textContent='전송 실패: '+err.message+' — 잠시 후 다시 시도해 주세요.';
-    btn.disabled=false;
+  }finally{
+    busy=false;document.body.classList.remove('busy');btn.disabled=false;WT=1;releaseWake();
   }
 };
 </script>
